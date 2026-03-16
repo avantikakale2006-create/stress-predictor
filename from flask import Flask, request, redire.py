@@ -1,0 +1,392 @@
+from flask import Flask, request, redirect
+import sqlite3
+
+app = Flask(__name__)
+
+def init_db():
+    conn = sqlite3.connect("users.db")
+    conn.execute("""
+    CREATE TABLE IF NOT EXISTS users(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    email TEXT,
+    password TEXT)
+    """)
+    conn.close()
+
+init_db()
+
+@app.route("/")
+def home():
+    return """
+    <html>
+    <head>
+    <title>Stress Predictor</title>
+    <style>
+    body{
+    font-family:Arial;
+    margin:0;
+    background:linear-gradient(135deg,#4facfe,#00f2fe);
+    }
+
+    .navbar{
+    background:#2c3e50;
+    color:white;
+    padding:15px;
+    text-align:center;
+    }
+
+    .center{
+    text-align:center;
+    margin-top:120px;
+    color:white;
+    }
+
+    .btn{
+    padding:12px 25px;
+    background:white;
+    color:#2c3e50;
+    text-decoration:none;
+    margin:10px;
+    border-radius:8px;
+    font-weight:bold;
+    }
+
+    </style>
+    </head>
+
+    <body>
+
+    <div class="navbar">
+    <h2>Stress Predictor System</h2>
+    </div>
+
+    <div class="center">
+
+    <h1>Welcome</h1>
+    <p>Check your mental stress level using daily life questions</p>
+
+    <a href="/login" class="btn">Sign In</a>
+    <a href="/signup" class="btn">Sign Up</a>
+
+    </div>
+
+    </body>
+    </html>
+    """
+
+
+@app.route("/signup",methods=["GET","POST"])
+def signup():
+
+    if request.method=="POST":
+
+        name=request.form["name"]
+        email=request.form["email"]
+        password=request.form["password"]
+
+        conn=sqlite3.connect("users.db")
+        conn.execute("INSERT INTO users(name,email,password) VALUES(?,?,?)",
+        (name,email,password))
+        conn.commit()
+        conn.close()
+
+        return redirect("/login")
+
+    return """
+    <html>
+    <style>
+
+    body{font-family:Arial;background:#ecf0f1}
+
+    .card{
+    width:400px;
+    margin:120px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 5px 20px gray;
+    }
+
+    input{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    }
+
+    button{
+    width:100%;
+    padding:12px;
+    background:#3498db;
+    color:white;
+    border:none;
+    }
+
+    </style>
+
+    <body>
+
+    <form method="POST" class="card">
+
+    <h2>Create Account</h2>
+
+    <input name="name" placeholder="Name">
+
+    <input name="email" placeholder="Email">
+
+    <input name="password" type="password" placeholder="Password">
+
+    <button type="submit">Register</button>
+
+    </form>
+
+    </body>
+    </html>
+    """
+
+
+@app.route("/login",methods=["GET","POST"])
+def login():
+
+    if request.method=="POST":
+
+        email=request.form["email"]
+        password=request.form["password"]
+
+        conn=sqlite3.connect("users.db")
+        user=conn.execute("SELECT * FROM users WHERE email=? AND password=?",
+        (email,password)).fetchone()
+        conn.close()
+
+        if user:
+            return redirect("/dashboard")
+
+    return """
+    <html>
+
+    <style>
+
+    body{font-family:Arial;background:#ecf0f1}
+
+    .card{
+    width:400px;
+    margin:120px auto;
+    background:white;
+    padding:30px;
+    border-radius:10px;
+    box-shadow:0 5px 20px gray;
+    }
+
+    input{
+    width:100%;
+    padding:10px;
+    margin:10px 0;
+    }
+
+    button{
+    width:100%;
+    padding:12px;
+    background:#2ecc71;
+    color:white;
+    border:none;
+    }
+
+    </style>
+
+    <body>
+
+    <form method="POST" class="card">
+
+    <h2>Login</h2>
+
+    <input name="email" placeholder="Email">
+
+    <input name="password" type="password" placeholder="Password">
+
+    <button type="submit">Login</button>
+
+    </form>
+
+    </body>
+
+    </html>
+    """
+
+
+@app.route("/dashboard")
+def dashboard():
+
+    return """
+
+<html>
+
+<head>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f6f7;
+}
+
+.card{
+width:500px;
+margin:40px auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 20px gray;
+}
+
+select{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+button{
+width:100%;
+padding:12px;
+background:#3498db;
+color:white;
+border:none;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<form action="/predict" method="POST" class="card">
+
+<h2>Daily Stress Questions</h2>
+
+<p>1. How was your day?</p>
+<select name="q1"><option value="1">Good</option><option value="3">Stressful</option></select>
+
+<p>2. Did you sleep well?</p>
+<select name="q2"><option value="1">Yes</option><option value="3">No</option></select>
+
+<p>3. Did you feel anxious today?</p>
+<select name="q3"><option value="1">No</option><option value="3">Yes</option></select>
+
+<p>4. Was your workload high?</p>
+<select name="q4"><option value="1">No</option><option value="3">Yes</option></select>
+
+<p>5. Did you exercise today?</p>
+<select name="q5"><option value="1">Yes</option><option value="3">No</option></select>
+
+<p>6. Did you feel emotionally tired?</p>
+<select name="q6"><option value="1">No</option><option value="3">Yes</option></select>
+
+<p>7. Did you spend time on hobbies?</p>
+<select name="q7"><option value="1">Yes</option><option value="3">No</option></select>
+
+<p>8. Did you talk with friends or family?</p>
+<select name="q8"><option value="1">Yes</option><option value="3">No</option></select>
+
+<p>9. Are you satisfied with your work/study today?</p>
+<select name="q9"><option value="1">Yes</option><option value="3">No</option></select>
+
+<p>10. How do you feel right now?</p>
+<select name="q10"><option value="1">Relaxed</option><option value="3">Very Stressed</option></select>
+
+<button type="submit">Predict Stress Level</button>
+
+</form>
+
+</body>
+
+</html>
+
+"""
+
+
+@app.route("/predict",methods=["POST"])
+def predict():
+
+    answers=[int(request.form[f"q{i}"]) for i in range(1,11)]
+    score=sum(answers)
+
+    if score<=15:
+        level="Low Stress"
+        suggestion="Great! Maintain good sleep, exercise and hobbies you enjoy."
+
+    elif score<=25:
+        level="Medium Stress"
+        suggestion="Try relaxation techniques, manage your time and spend time with hobbies."
+
+    else:
+        level="High Stress"
+        suggestion="Your stress level seems high. Try meditation, talk to loved ones and consider therapy."
+
+    return f"""
+
+<html>
+
+<head>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{{font-family:Arial;background:#f4f6f7;text-align:center}}
+
+.card{{
+width:500px;
+margin:80px auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 20px gray;
+}}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h2>Your Stress Level</h2>
+
+<h1>{level}</h1>
+
+<p>{suggestion}</p>
+
+<canvas id="chart"></canvas>
+
+</div>
+
+<script>
+
+var ctx=document.getElementById('chart');
+
+new Chart(ctx,{{
+type:'bar',
+
+data:{{
+labels:['Stress Score'],
+datasets:[{{
+label:'Stress Level',
+data:[{score}]
+}}]
+}}
+
+}});
+
+</script>
+
+</body>
+
+</html>
+
+"""
+
+
+if __name__=="__main__":
+    app.run(debug=True)

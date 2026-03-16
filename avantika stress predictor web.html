@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Stress Predictor</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #ffd6e8, #e6d6ff, #c7f5e0);
+            min-height: 100vh;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .container {
+            width: 560px;
+            margin: 60px auto;
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            text-align: center;
+            color: #b26ad6;
+        }
+
+        h2 {
+            text-align: center;
+            color: #5a7d7c;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 11px;
+            margin: 8px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+            background: #fafafa;
+        }
+
+        textarea {
+            height: 60px;
+        }
+
+        button {
+            width: 100%;
+            padding: 13px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background: linear-gradient(45deg, #ffb6d9, #cdb4ff, #a8f0d3);
+            color: #333;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: scale(1.03);
+        }
+
+        #signin {
+            display: block;
+        }
+
+        #stressLevel {
+            color: #b26ad6;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- SIGN IN PAGE -->
+
+    <div id="signin" class="container page">
+
+        <h1>Stress Predictor</h1>
+
+        <h2>Create Profile</h2>
+
+        <input id="name" placeholder="Full Name">
+
+        <input placeholder="Age">
+
+        <input placeholder="Student / Occupation">
+
+        <textarea id="hobbies" placeholder="Your hobbies"></textarea>
+
+        <textarea placeholder="Likes"></textarea>
+
+        <textarea placeholder="Dislikes"></textarea>
+
+        <input id="username" placeholder="Create Username">
+
+        <input id="password" type="password" placeholder="Create Password">
+
+        <button onclick="goToLogin()">Continue</button>
+
+    </div>
+
+
+    <!-- LOGIN PAGE -->
+
+    <div id="login" class="container page">
+
+        <h2>Login</h2>
+
+        <input id="loginUser" placeholder="Username">
+
+        <input id="loginPass" type="password" placeholder="Password">
+
+        <button onclick="login()">Login</button>
+
+    </div>
+
+
+    <!-- QUESTIONS PAGE -->
+
+    <div id="questions" class="container page">
+
+        <h2>Daily Stress Questions</h2>
+
+        <p>1. How was your day?</p>
+        <select id="q1">
+            <option value="1">Good</option>
+            <option value="2">Normal</option>
+            <option value="3">Stressful</option>
+        </select>
+        <textarea placeholder="Explain"></textarea>
+
+        <p>2. Did you sleep well?</p>
+        <select id="q2">
+            <option value="1">Yes</option>
+            <option value="2">Average</option>
+            <option value="3">No</option>
+        </select>
+        <textarea placeholder="Sleep details"></textarea>
+
+        <p>3. Did you feel anxious?</p>
+        <select id="q3">
+            <option value="1">No</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Often</option>
+        </select>
+        <textarea placeholder="Describe"></textarea>
+
+        <p>4. Was your workload heavy?</p>
+        <select id="q4">
+            <option value="1">Low</option>
+            <option value="2">Medium</option>
+            <option value="3">High</option>
+        </select>
+        <textarea placeholder="Explain"></textarea>
+
+        <p>5. Did you exercise today?</p>
+        <select id="q5">
+            <option value="1">Yes</option>
+            <option value="2">Sometimes</option>
+            <option value="3">No</option>
+        </select>
+        <textarea placeholder="Activity details"></textarea>
+
+        <p>6. Did you feel emotionally tired?</p>
+        <select id="q6">
+            <option value="1">No</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Yes</option>
+        </select>
+        <textarea placeholder="Explain"></textarea>
+
+        <p>7. Did you spend time on hobbies?</p>
+        <select id="q7">
+            <option value="1">Yes</option>
+            <option value="2">Sometimes</option>
+            <option value="3">No</option>
+        </select>
+        <textarea placeholder="Details"></textarea>
+
+        <p>8. Did you talk to friends/family?</p>
+        <select id="q8">
+            <option value="1">Yes</option>
+            <option value="2">Little</option>
+            <option value="3">No</option>
+        </select>
+        <textarea placeholder="Explain"></textarea>
+
+        <p>9. Are you satisfied with today?</p>
+        <select id="q9">
+            <option value="1">Yes</option>
+            <option value="2">Neutral</option>
+            <option value="3">No</option>
+        </select>
+        <textarea placeholder="Why?"></textarea>
+
+        <p>10. How do you feel right now?</p>
+        <select id="q10">
+            <option value="1">Relaxed</option>
+            <option value="2">Okay</option>
+            <option value="3">Very stressed</option>
+        </select>
+        <textarea placeholder="Describe mood"></textarea>
+
+        <button onclick="predictStress()">Predict Stress</button>
+
+    </div>
+
+
+    <!-- RESULT PAGE -->
+
+    <div id="result" class="container page">
+
+        <h2>Your Stress Result</h2>
+
+        <h1 id="stressLevel"></h1>
+
+        <p id="suggestion"></p>
+
+        <canvas id="chart"></canvas>
+
+    </div>
+
+
+
+    <script>
+
+        let savedUser = ""
+        let savedPass = ""
+
+        function showPage(page) {
+
+            document.querySelectorAll(".page").forEach(p => {
+                p.style.display = "none"
+            })
+
+            document.getElementById(page).style.display = "block"
+
+        }
+
+        function goToLogin() {
+
+            savedUser = document.getElementById("username").value
+            savedPass = document.getElementById("password").value
+
+            showPage("login")
+
+        }
+
+        function login() {
+
+            let u = document.getElementById("loginUser").value
+            let p = document.getElementById("loginPass").value
+
+            if (u === savedUser && p === savedPass) {
+
+                showPage("questions")
+
+            } else {
+
+                alert("Wrong Username or Password")
+
+            }
+
+        }
+
+        function predictStress() {
+
+            let score = 0
+
+            for (let i = 1; i <= 10; i++) {
+
+                score += parseInt(document.getElementById("q" + i).value)
+
+            }
+
+            let hobbies = document.getElementById("hobbies").value
+
+            let level = ""
+            let suggestion = ""
+
+            if (score <= 15) {
+
+                level = "Low Stress"
+                suggestion = "You seem relaxed. Continue enjoying hobbies like " + hobbies + " and maintain your healthy lifestyle."
+
+            }
+
+            else if (score <= 25) {
+
+                level = "Medium Stress"
+                suggestion = "Try relaxation techniques and spend time doing hobbies like " + hobbies + " to reduce stress."
+
+            }
+
+            else {
+
+                level = "High Stress"
+                suggestion = "Your stress level is high. Take breaks, do hobbies like " + hobbies + " and consider therapy if needed."
+
+            }
+
+            document.getElementById("stressLevel").innerText = level
+            document.getElementById("suggestion").innerText = suggestion
+
+            showPage("result")
+
+            var ctx = document.getElementById("chart")
+
+            new Chart(ctx, {
+
+                type: "doughnut",
+
+                data: {
+                    labels: ["Stress Score", "Balance"],
+                    datasets: [{
+                        data: [score, 30 - score]
+                    }]
+                }
+
+            })
+
+        }
+
+    </script>
+
+</body>
+
+</html>
