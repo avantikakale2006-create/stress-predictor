@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Welcome, {{ name }}!</h2>
+    <p style="text-align:center;"><a href="/logout">Logout</a></p>
+    <h2>Daily Stress Questions</h2>
+    <form method="POST" action="/predict">
+        <p>1. How was your day?</p>
+        <select name="q1">
+            <option value="1">Good</option>
+            <option value="2">Normal</option>
+            <option value="3">Stressful</option>
+        </select>
+
+        <p>2. Did you sleep well?</p>
+        <select name="q2">
+            <option value="1">Yes</option>
+            <option value="2">Average</option>
+            <option value="3">No</option>
+        </select>
+
+        <p>3. Did you feel anxious?</p>
+        <select name="q3">
+            <option value="1">No</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Often</option>
+        </select>
+
+        <p>4. Was your workload heavy?</p>
+        <select name="q4">
+            <option value="1">Low</option>
+            <option value="2">Medium</option>
+            <option value="3">High</option>
+        </select>
+
+        <p>5. Did you exercise today?</p>
+        <select name="q5">
+            <option value="1">Yes</option>
+            <option value="2">Sometimes</option>
+            <option value="3">No</option>
+        </select>
+
+        <p>6. Did you feel emotionally tired?</p>
+        <select name="q6">
+            <option value="1">No</option>
+            <option value="2">Sometimes</option>
+            <option value="3">Yes</option>
+        </select>
+
+        <p>7. Did you spend time on hobbies?</p>
+        <select name="q7">
+            <option value="1">Yes</option>
+            <option value="2">Sometimes</option>
+            <option value="3">No</option>
+        </select>
+
+        <p>8. Did you talk to friends/family?</p>
+        <select name="q8">
+            <option value="1">Yes</option>
+            <option value="2">Little</option>
+            <option value="3">No</option>
+        </select>
+
+        <p>9. Are you satisfied with today?</p>
+        <select name="q9">
+            <option value="1">Yes</option>
+            <option value="2">Neutral</option>
+            <option value="3">No</option>
+        </select>
+
+        <p>10. How do you feel right now?</p>
+        <select name="q10">
+            <option value="1">Relaxed</option>
+            <option value="2">Okay</option>
+            <option value="3">Very stressed</option>
+        </select>
+
+        <button type="submit">Predict Stress</button>
+    </form>
+{% endblock %}

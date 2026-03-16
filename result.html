@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h2>Your Stress Result</h2>
+    <h1 style="color: #b26ad6; text-align: center;">{{ level }}</h1>
+    
+    <h3>Suggestions:</h3>
+    <ul>
+        {% for tip in tips %}
+        <li>{{ tip }}</li>
+        {% endfor %}
+    </ul>
+
+    <canvas id="chart"></canvas>
+    <a href="/dashboard" class="btn">Back to Dashboard</a>
+
+    <script>
+        var ctx = document.getElementById("chart");
+        let score = {{ score }};
+        new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: ["Stress Score", "Balance"],
+                datasets: [{
+                    data: [score, 30 - score],
+                    backgroundColor: ['#ffb6d9', '#a8f0d3']
+                }]
+            }
+        });
+    </script>
+{% endblock %}

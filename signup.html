@@ -1,0 +1,14 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <h1>Stress Predictor</h1>
+    <h2>Create Profile</h2>
+    <form method="POST" action="/signup">
+        <input name="name" placeholder="Full Name" required>
+        <input name="email" type="email" placeholder="Email" required>
+        <input name="password" type="password" placeholder="Create Password" required>
+        <button type="submit">Continue</button>
+    </form>
+    <div class="links">
+        <a href="/login">Already have an account? Login here</a>
+    </div>
+{% endblock %}
